@@ -13,9 +13,10 @@ public class Login_user extends JFrame implements ActionListener {
     private JButton b1, b2, b3;
 
     public Login_user() {
-
+        setTitle("Login");
         setBackground(new Color(169, 169, 169));
         setBounds(400, 200, 600, 400);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         panel = new JPanel();
@@ -135,7 +136,19 @@ public class Login_user extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new Login_user().setVisible(true);
+        try {
+            UIManager.setLookAndFeel("com.jtattoo.plaf.aero.AeroLookAndFeel");
+            // Create the frame on the Event Dispatch Thread
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    new Login_user().setVisible(true);
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        
     }
 
 }

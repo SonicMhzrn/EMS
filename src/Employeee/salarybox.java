@@ -70,7 +70,7 @@ class salarybox implements ActionListener{
         }
         if(ae.getSource()==b2){
             f.setVisible(false);
-           new Update_salary();
+           new Update_salary(id);
         } 
         
         if(ae.getSource()==b3){

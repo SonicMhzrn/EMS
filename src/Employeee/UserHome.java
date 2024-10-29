@@ -1,92 +1,187 @@
 package Employeee;
 
-import java.awt.Color;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 
-public class UserHome implements ActionListener {
+public class UserHome extends JFrame {
 
-    JFrame f;
-    JLabel l1, l2;
-    JButton b1, b2, b3, b4;
-    String empId, name;
+    JButton logoutButton, addEmployeeButton, viewRecordsButton, salaryEmployeeButton, attendanceButton, leaveRecordButton;
+    int iconWidthadd = 40; // Width of the icon
+    int iconHeightadd = 40; // Height of the icon
+//    String empId, name;
+    private boolean leaveAlertShown = false;
 
-    // Constructor with parameters
-    UserHome(String empId, String name) {
-        this.empId = empId;
-        this.name = name;
-        System.out.println(empId+name);
-        initialize();
-    }
+    public UserHome(String empId, String name) {
+        // Set the title of the JFrame
+        setTitle("User Home");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1100, 800);
+        setLocationRelativeTo(null);
 
-    private void initialize() {
-        f = new JFrame("USER HOME PAGE");
-        f.setBackground(Color.white);
-        f.setLayout(null);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Background panel
+        JPanel backgroundPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("Employeee/icons/bgnew.png"));
+                Image img = icon.getImage();
+                g.drawImage(img, 0, 0, 250, 800, this); // Adjusted to match the background portion
+            }
+        };
+        backgroundPanel.setLayout(null); // Set layout to null for absolute positioning
+        JLabel adminIconLabel = new JLabel();
+        ImageIcon adminIcon = new ImageIcon(ClassLoader.getSystemResource("Employeee/icons/profile.png"));
 
-        l1 = new JLabel();
-        l1.setBounds(0, 0, 700, 400);
-        l1.setLayout(null);
-        ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("Employeee/icons/Home.jpg"));
-        l1.setIcon(i1);
-        f.add(l1);
+        // Resize the ImageIcon
+        int iconWidth = 150;
+        int iconHeight = 150;
+        Image img = adminIcon.getImage().getScaledInstance(iconWidth, iconHeight, Image.SCALE_SMOOTH);
+        adminIcon = new ImageIcon(img);
+        adminIconLabel.setIcon(adminIcon);
+        adminIconLabel.setBounds(70, 30, iconWidth, iconHeight); // Adjust the position and size as per the design
+        backgroundPanel.add(adminIconLabel);
 
-        l2 = new JLabel("HOME ICON");
-        l2.setBounds(400, 20, 240, 40);
-        l2.setFont(new Font("serif", Font.BOLD, 30));
-        l2.setForeground(Color.black);
-        l1.add(l2);
+// Admin text label
+//        JLabel adminLabel = new JLabel("<html>Welcome<br>Admin</html>", SwingConstants.CENTER);
+//        int labelWidth = iconWidth; // Width of the label to match the icon
+//        int labelHeight = 50; // Height of the label
+//        adminLabel.setBounds(70, 30 + iconHeight + 10, labelWidth, labelHeight); // Position the label below the icon
+//        adminLabel.setFont(new Font("Arial", Font.BOLD, 24));
+//        adminLabel.setForeground(Color.BLACK);
+//        backgroundPanel.add(adminLabel);
+        // Logout button
+        // Create the logout button
+        logoutButton = new JButton("Logout");
 
-        b1 = new JButton("Attendance");
-        b1.setBounds(380, 140, 120, 40);
-        b1.setFont(new Font("serif", Font.BOLD, 15));
-        b1.addActionListener(this);
-        b1.setForeground(new Color(0, 0, 0));
-        b1.setBackground(new Color(255, 255, 255));
-        l1.add(b1);
+        // Load and resize the icon
+        ImageIcon logoutIcon = new ImageIcon(ClassLoader.getSystemResource("Employeee/icons/logout.png"));
+        int iconWidthlogout = 20; // Width of the icon
+        int iconHeightlogout = 20; // Height of the icon
+        Image img1 = logoutIcon.getImage().getScaledInstance(iconWidthlogout, iconHeightlogout, Image.SCALE_SMOOTH);
+        logoutIcon = new ImageIcon(img1);
 
-        b2 = new JButton("Take Leave");
-        b2.setBounds(530, 140, 120, 40);
-        b2.setFont(new Font("serif", Font.BOLD, 15));
-        b2.addActionListener(this);
-        b2.setForeground(new Color(0, 0, 0));
-        b2.setBackground(new Color(255, 255, 255));
-        l1.add(b2);
+        // Set the icon and text on the button
+        logoutButton.setIcon(logoutIcon);
+        logoutButton.setText("Logout");
+        logoutButton.setHorizontalTextPosition(JButton.RIGHT); // Position text to the right of the icon
+        logoutButton.setVerticalTextPosition(JButton.CENTER); // Center text vertically with the icon
 
-//        b3 = new JButton("Attendance Box");
-//        b3.setBounds(530, 190, 120, 40);
-//        b3.setFont(new Font("serif", Font.BOLD, 15));
-//        b3.addActionListener(this);
-//        b3.setForeground(new Color(0, 0, 0));
-//        b3.setBackground(new Color(255, 255, 255));
-//        l1.add(b3);
+        // Set button bounds and add to the background panel
+        logoutButton.setBounds(50, 300, 150, 30); // Adjust bounds as needed
+        backgroundPanel.add(logoutButton);
 
-        b4 = new JButton("EXIT");
-        b4.setBounds(440, 250, 150, 40);
-        b4.setFont(new Font("serif", Font.BOLD, 15));
-        b4.addActionListener(this);
-        b4.setForeground(Color.red);
-        b4.setBackground(new Color(255, 255, 255));
-        l1.add(b4);
+        // Buttons for functionalities
+        //Attendance
+        attendanceButton = new JButton("Attendance");
+        ImageIcon attButton = new ImageIcon(ClassLoader.getSystemResource("Employeee/icons/immigration.png"));
+//        int iconWidthadd = 40; // Width of the icon
+//        int iconHeightadd = 40; // Height of the icon
+        Image imgatt = attButton.getImage().getScaledInstance(iconWidthadd, iconHeightadd, Image.SCALE_SMOOTH);
+        attButton = new ImageIcon(imgatt);
 
-        f.setVisible(true);
-        f.setSize(700, 400);
-        f.setLocation(400, 200);
-    }
+        // Set the icon and text on the button
+        attendanceButton.setIcon(attButton);
+        attendanceButton.setText("Take Attendance");
+        attendanceButton.setHorizontalTextPosition(JButton.RIGHT); // Position text to the right of the icon
+        attendanceButton.setVerticalTextPosition(JButton.CENTER); // Center text vertically with the icon
+        attendanceButton.setFocusPainted(false);
 
-    public void actionPerformed(ActionEvent ae) {
-        if (ae.getSource() == b1) {
-            Connection con = null;
+        attendanceButton.setBounds(300, 100, 200, 100);
+        backgroundPanel.add(attendanceButton);
+
+        //Leave Button
+        leaveRecordButton = new JButton("Leave Record");
+        ImageIcon leaveButton = new ImageIcon(ClassLoader.getSystemResource("Employeee/icons/calendar.png"));
+//        int iconWidthadd = 40; // Width of the icon
+//        int iconHeightadd = 40; // Height of the icon
+        Image imgleave = leaveButton.getImage().getScaledInstance(iconWidthadd, iconHeightadd, Image.SCALE_SMOOTH);
+        leaveButton = new ImageIcon(imgleave);
+
+        // Set the icon and text on the button
+        leaveRecordButton.setIcon(leaveButton);
+        leaveRecordButton.setText("Leave Request");
+        leaveRecordButton.setHorizontalTextPosition(JButton.RIGHT); // Position text to the right of the icon
+        leaveRecordButton.setVerticalTextPosition(JButton.CENTER); // Center text vertically with the icon
+        leaveRecordButton.setFocusPainted(false);
+        leaveRecordButton.setBounds(550, 100, 200, 100);
+        backgroundPanel.add(leaveRecordButton);
+        
+         //View Button
+        viewRecordsButton = new JButton("View Records");
+        ImageIcon viewButton = new ImageIcon(ClassLoader.getSystemResource("Employeee/icons/directory.png"));
+//        int iconWidthadd = 40; // Width of the icon
+//        int iconHeightadd = 40; // Height of the icon
+        Image imgview = viewButton.getImage().getScaledInstance(iconWidthadd, iconHeightadd, Image.SCALE_SMOOTH);
+        viewButton = new ImageIcon(imgview);
+
+        // Set the icon and text on the button
+        viewRecordsButton.setIcon(viewButton);
+        viewRecordsButton.setText("View Details");
+        viewRecordsButton.setHorizontalTextPosition(JButton.RIGHT); // Position text to the right of the icon
+        viewRecordsButton.setVerticalTextPosition(JButton.CENTER); // Center text vertically with the icon
+        viewRecordsButton.setFocusPainted(false);
+
+        viewRecordsButton.setBounds(300, 250, 200, 100);
+        backgroundPanel.add(viewRecordsButton);
+
+        //Remove Button
+        salaryEmployeeButton = new JButton("View Salary");
+        ImageIcon salaryButton = new ImageIcon(ClassLoader.getSystemResource("Employeee/icons/salary.png"));
+//        int iconWidthadd = 40; // Width of the icon
+//        int iconHeightadd = 40; // Height of the icon
+        Image imgremove = salaryButton.getImage().getScaledInstance(iconWidthadd, iconHeightadd, Image.SCALE_SMOOTH);
+        salaryButton = new ImageIcon(imgremove);
+
+        // Set the icon and text on the button
+        salaryEmployeeButton.setIcon(salaryButton);
+        salaryEmployeeButton.setText("Salary");
+        salaryEmployeeButton.setHorizontalTextPosition(JButton.RIGHT); // Position text to the right of the icon
+        salaryEmployeeButton.setVerticalTextPosition(JButton.CENTER); // Center text vertically with the icon
+        salaryEmployeeButton.setFocusPainted(false);
+
+        salaryEmployeeButton.setBounds(800, 100, 200, 100);
+        backgroundPanel.add(salaryEmployeeButton);
+
+        // Add the background panel to the frame
+        setContentPane(backgroundPanel);
+
+        // Make the frame visible
+        setVisible(true);
+
+
+        // Action Listeners (if needed)
+        viewRecordsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+                new ViewEmployee(empId,name);
+            }
+        });
+         leaveRecordButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+                new Leave(empId,name);
+            }
+        });
+        salaryEmployeeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+                new View_Salary(empId,name);
+            }
+        });
+
+        attendanceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Connection con = null;
             PreparedStatement ps = null;
             try {
                 con = new conn().c;
@@ -105,33 +200,42 @@ public class UserHome implements ActionListener {
                 } else {
                     JOptionPane.showMessageDialog(null, "Failed to mark attendance.");
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (SQLException es) {
+                es.printStackTrace();
             } finally {
                 try {
                     if (ps != null) ps.close();
                     if (con != null) con.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                } catch (SQLException es) {
+                    es.printStackTrace();
                 }
             }
-        }
-        if (ae.getSource() == b2) {
-            f.setVisible(false);
-            new salarybox(); // Assuming salarybox is a valid class
-        }
-//        if (ae.getSource() == b3) {
-//            f.setVisible(false);
-//            new attendancebox(); // Assuming attendancebox is a valid class
-//        }
-        if (ae.getSource() == b4) {
-            f.setVisible(false);
-            System.exit(0);
-        }
+            }
+        });
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
     }
+   
 
     public static void main(String[] args) {
-        // Use the parameterized constructor
-        new UserHome("defaultEmpId", "defaultName"); // Replace with actual values or handle as necessary
+        try {
+            UIManager.setLookAndFeel("com.jtattoo.plaf.aero.AeroLookAndFeel");
+            // Create the frame on the Event Dispatch Thread
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    new UserHome("","");
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
     }
+
 }

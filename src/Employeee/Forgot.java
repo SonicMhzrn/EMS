@@ -124,6 +124,7 @@ public class Forgot extends JFrame implements ActionListener{
         panel.setBackground(Color.WHITE);
 	contentPane.add(panel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
     }
     
     public void actionPerformed(ActionEvent ae){
